@@ -11,8 +11,8 @@
 				<h1>Side Bar</h1>
 				<ul>
 					<li><a href="{{url_for('index')}}">Index</a></li>
-					<li><a href="{{url_for('home')}}">home</a></li>
-					<li class="active"><a href="{{url_for('display')}}">Display</a></li>
+					<li class="active"><a href="{{url_for('home')}}">home</a></li>
+					<li><a href="{{url_for('display')}}">Display</a></li>
 					<li><a href="{{url_for('update')}}">Update</a></li>
 					<li><a href="{{url_for('delete_account')}}">Delete Account</a></li>
 					<li><a href="{{url_for('logout')}}">Log out</a></li>
@@ -27,38 +27,12 @@
 					{% block content %}
 						<div class="border">
 							<table class="worddark"></br></br></br></br>
+								{% for account in accounts %}
 								<tr>
-									<td>Username:</td>
-									<td>{{ account['username'] }}</td>
-								</tr>
-								<tr>
-									<td>Email ID:</td>
+									<td>{{ account['username'] }} :</td>
 									<td>{{ account['email'] }}</td>
 								</tr>
-								<tr>
-									<td>organization:</td>
-									<td>{{ account['organization'] }}</td>
-								</tr>
-								<tr>
-									<td>Address:</td>
-									<td>{{ account['address'] }}</td>
-								</tr>
-								<tr>
-									<td>City:</td>
-									<td>{{ account['city'] }}</td>
-								</tr>
-								<tr>
-									<td>State:</td>
-									<td>{{ account['state'] }}</td>
-								</tr>
-								<tr>
-									<td>Country:</td>
-									<td>{{ account['country'] }}</td>
-								</tr>
-								<tr>
-									<td>Postal code:</td>
-									<td>{{ account['postalcode'] }}</td>
-								</tr>					 
+								{% endfor %}				 
 							</table>
 						</div>
 					{% endblock %}									 
@@ -68,3 +42,4 @@
 		</div>
 	</body>
 </html>
+

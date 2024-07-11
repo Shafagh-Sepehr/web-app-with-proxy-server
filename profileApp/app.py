@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
+import hashlib
 
 
 app = Flask(__name__)
@@ -30,7 +31,11 @@ def login():
         and "password" in request.form
     ):
         username = request.form["username"]
-        password_hash = hash(request.form["password"])
+
+        input_str = request.form["password"]
+        hash_object = hashlib.sha256(input_str.encode())
+        password_hash = hash_object.hexdigest()
+
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute(
             "SELECT * FROM accounts WHERE username = %s \
@@ -48,7 +53,12 @@ def login():
             msg = "Logged in successfully !"
             return render_template("index.html", msg=msg)
         else:
-            msg = "Incorrect username / password !"
+            cursor.execute("SELECT * FROM accounts WHERE username = %s", (username,))
+            account = cursor.fetchone()
+            if not account:
+                msg = "Incorrect username!"
+            else:
+                msg = "Incorrect password!"
     return render_template("login.html", msg=msg)
 
 
@@ -76,7 +86,11 @@ def register():
         and "organization" in request.form
     ):
         username = request.form["username"]
-        password_hash = hash(request.form["password"])
+
+        input_str = request.form["password"]
+        hash_object = hashlib.sha256(input_str.encode())
+        password_hash = hash_object.hexdigest()
+
         email = request.form["email"]
         organization = request.form["organization"]
         address = request.form["address"]
@@ -200,6 +214,26 @@ def update():
         account = cursor.fetchone()
         return render_template("update.html", msg=msg, account=account)
     return redirect(url_for("login"))
+
+
+@app.route("/home")
+def home():
+    if "loggedin" in session:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute("SELECT username, email FROM accounts")
+        accounts = cursor.fetchall()
+        return render_template("home.html", accounts=accounts)
+    return redirect(url_for("login"))
+
+
+@app.route("/delete_account")
+def delete_account():
+    if "loggedin" in session:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute("delete from accounts where id = %s", (session["id"],))
+        mysql.connection.commit()
+        msg = "account was successfully deleted."
+    return render_template("login.html", msg=msg)
 
 
 if __name__ == "__main__":
