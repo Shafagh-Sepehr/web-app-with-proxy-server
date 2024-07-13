@@ -169,7 +169,11 @@ def update():
             and "organization" in request.form
         ):
             username = request.form["username"]
-            password = hash(request.form["password"])
+            
+            input_str = request.form["password"]
+            hash_object = hashlib.sha256(input_str.encode())
+            password_hash = hash_object.hexdigest()
+            
             email = request.form["email"]
             organization = request.form["organization"]
             address = request.form["address"]
@@ -178,10 +182,14 @@ def update():
             country = request.form["country"]
             postalcode = request.form["postalcode"]
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            cursor.execute("SELECT * FROM accounts WHERE username = %s", (username,))
-            account = cursor.fetchone()
+            
+            account = None
+            if session['username'] != username:
+                cursor.execute("SELECT * FROM accounts WHERE username = %s", (username,))
+                account = cursor.fetchone()
+                
             if account:
-                msg = "Account already exists !"
+                msg = "username already exists !"
             elif not re.match(r"[^@]+@[^@]+\.[^@]+", email):
                 msg = "Invalid email address !"
             elif not re.match(r"[A-Za-z0-9]+", username):
@@ -194,7 +202,7 @@ def update():
 				country =%s, postalcode =%s WHERE id =%s",
                     (
                         username,
-                        password,
+                        password_hash,
                         email,
                         organization,
                         address,
@@ -205,6 +213,7 @@ def update():
                         (session["id"],),
                     ),
                 )
+                session['username'] = username
                 mysql.connection.commit()
                 msg = "You have successfully updated !"
         elif request.method == "POST":
@@ -237,4 +246,4 @@ def delete_account():
 
 
 if __name__ == "__main__":
-    app.run(host="localhost", port=int("5000"))
+    app.run(host="localhost", port=int("5000"),debug=True)
