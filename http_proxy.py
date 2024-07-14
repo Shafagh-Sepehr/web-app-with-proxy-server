@@ -30,14 +30,6 @@ def is_http_request(data):
         return False
 
 
-def is_http_response(data):
-    p = HTTP(data)
-    if p.haslayer(HTTPResponse):
-        return True
-    else:
-        return False
-    
-
 def threaded(fn):
     def wrapper(*args, **kwargs):
         _thread = threading.Thread(target=fn, args=args, kwargs=kwargs)
@@ -118,9 +110,9 @@ class HTTPProxy(object):
                     data = server_sock.recv(chunk_size)
                     if len(data) == 0:
                         break
-                    
-                    if is_http_packet(data) and is_http_response(data):
-                        client_sock.sendall(data)
+
+                    client_sock.sendall(data)
+
         except:
             pass
         try:
