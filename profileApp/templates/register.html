@@ -22,8 +22,10 @@
             <input type="text" name="country" placeholder="Enter Your Country" class="textbox" id="country" required></br></br>
             <input type="text" name="postalcode" placeholder="Enter Your Postal Code" class="textbox" id="postalcode" required></br></br>
             <input type="submit" class="btn" value="Register">
-            </form>
-            <p class="worddark">Already have account? <a class="worddark" href="{{ url_for('login')}}">Login here</a></p>
+            </form></br>
+            <div class="card">
+                <p class="worddark">Already have account? <a class="worddark link" href="{{ url_for('login')}}">Login here</a></p>
+            </div>
             </div>
         </div>
     </body>

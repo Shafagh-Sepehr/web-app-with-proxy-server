@@ -4,64 +4,98 @@
 	margin: 0 auto;
 	height: 500px;
 	width: 400px;
-	background-color: #e6ffee; 
+	background-color: #c5dfe6; 
 	border-radius: 10px;
-}
-
-.registercontent{
-	margin: 0 auto;
-	height: 720px;
-	width: 400px;
-	background-color: #e6ffee; 
-	border-radius: 10px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #000000;
 }
 
 .logintop{
 	height: 60px;
+	width: 398px;
+	border-radius: 10px;
+	background-color: #4cc7f8; 
+	color: #000000;
+}
+
+.registercontent{
+	margin: 0 auto;
+	height: 740px;
 	width: 400px;
-	background-color: #009933; 
-	color: #ffffff;
+	background-color: #c5dfe6; 
+	border-radius: 10px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #000000;
 }
 
 .registertop{
 	height: 60px;
-	width: 400px;
-	background-color: #009933; 
-	color: #ffffff;
+	width: 398px;
+	border-radius: 10px;
+	background-color: #4cc7f8; 
+	color: #000000;
 }
 
 .textbox{
 	padding: 10px 40px;
-	background-color: #009933; 
+	background-color: #4cc7f8; 
 	border-radius: 10px;
+	border-color: #3682a5;
+	
 }
 
+.textbox:focus {
+    outline: 2px solid #003046; 
+}
+
+
 ::placeholder {
-	color: #FFFFFF;
-	opacity: 1;
+	color: #000000;
+	opacity: 0.7;
 	font-style: oblique;
-	font-weight: bold;
 }
 
 .btn {
-	padding: 10px 40px;
-	background-color: #009933; 
-	color: #FFFFFF;
+	padding: 15px 45px;
+	background-color: #4cc7f8; 
+	color: #000000;
 	font-style: oblique;
 	font-weight: bold;
 	border-radius: 10px;
+	cursor: pointer;
+	border-width: 2px;
+	border-style: solid;
+	border-color: #058bc0;
 }
 
+.btn:hover {
+	background-color: #2e9dc9;
+	border-radius: 18px;
+	transition: 0.25s;
+  }
+
 .worddark{
-	color: #009933;
+	color: #000000;
 	font-style: oblique;
 	font-weight: bold;
 }
 
 .wordlight{
-	color: #FFFFFF;
+	color: #000000;
 	font-style: oblique;
 	font-weight: bold;
+}
+
+.link{
+	color: #003046;
+	text-decoration: underline;
+}
+
+.link:hover{
+	color: #1c5f7e;
+	transition: 0.3s;
 }
 
 *{
@@ -81,9 +115,13 @@
 .one .two{
 	width: 225px;
 	height: 100%;
-	background: #009933;
+	background: #4cc7f8;
 	padding: 30px 0px;
 	position: fixed;
+}
+
+.body{
+	background-color: #afd0d8;
 }
 
 .one .two h1{
@@ -101,18 +139,18 @@
 }
 		
 .one .two .active{
-	background: #0a8032;
+	background: #058bc0;
 }
 
 .one .two ul li{
 	text-align: center;
 	padding: 15px;
-	border-bottom: 0.1px solid white;
-	border-top: 0.1px solid white;
+	border-bottom: 0.1px solid rgb(13, 18, 44);
+	border-top: 0.1px solid rgb(13, 18, 44);
 } 
 
 .one .two ul li a{
-	color: #ffffff;
+	color: #000000;
 	display: block;
 }
 
@@ -129,7 +167,7 @@
 .one .content .topbar{
 	text-align: center;
 	padding: 20px;
-	background: #00b33c;
+	background: #0071a5;
 	color: white;
 }
 		
@@ -138,8 +176,36 @@
 }
 
 .one .content .contentbar h1{
-	color: #11a844;
+	color: #0071a5;
 	text-align: center;
 	font-style: oblique;
 	font-weight: bold;
 }
+
+
+.one .two ul li:hover {
+  background-color: #058bc0;
+  transition: background-color 0.3s;
+}
+
+
+.textbox:hover {
+  background-color: #058bc0;
+  transition: background-color 0.3s;
+}
+
+.card{
+	width: 400px;
+	border-style: none;
+	border-width: 1px;
+	border-radius: 5px;
+}
+
+.one .two a:link {
+	color: black;
+}
+  
+.one .two a:visited {
+	color: black;
+}
+
