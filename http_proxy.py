@@ -22,6 +22,22 @@ def is_http_packet(data):
     return False
 
 
+def is_http_request(data):
+    p = HTTP(data)
+    if p.haslayer(HTTPRequest):
+        return True
+    else:
+        return False
+
+
+def is_http_response(data):
+    p = HTTP(data)
+    if p.haslayer(HTTPResponse):
+        return True
+    else:
+        return False
+    
+
 def threaded(fn):
     def wrapper(*args, **kwargs):
         _thread = threading.Thread(target=fn, args=args, kwargs=kwargs)
@@ -31,7 +47,7 @@ def threaded(fn):
     return wrapper
 
 
-class TCPBridge(object):
+class HTTPProxy(object):
 
     def __init__(self, host, port, dst_host, dst_port):
         self.host = host
@@ -46,56 +62,73 @@ class TCPBridge(object):
 
         self.stop = False
 
-    # @threaded
-    def tunnel(self, sock: socket.socket, sock2: socket.socket, chunk_size=1024):
+    def manipulate_http_header(self, data):
+        packet = HTTPRequest(data)
+        if is_http_packet(data) and is_http_request(data):
+            host = packet.Host.decode()
+
+            if host.find(":") != -1:
+                host_ip, port = host.split(":")
+            else:
+                host_ip = host
+
+            if host_ip == self.dst_host:
+                # data = data.replace(
+                #     host_ip.encode(), self.dst_host.encode()
+                # )
+                # server_sock.sendall(data)
+
+                packet.Host = self.dst_host.encode()
+
+                packet.Path = packet.Path[len("http://" + host) :]
+                if len(packet.Path) == 0:
+                    packet.Path = b"/"
+
+                if packet.Referer:
+                    packet.Referer = packet.Referer.replace(
+                        host_ip.encode(), self.dst_host.encode()
+                    )
+
+                return bytes(packet)
+            else:
+                return False
+
+    @threaded
+    def tunnel(
+        self, client_sock: socket.socket, server_sock: socket.socket, chunk_size=1024
+    ):
         try:
             while not self.stop:
+
                 """this line is for raising exception when connection is broken"""
-                sock.getpeername() and sock2.getpeername()
-                r, w, x = select.select([sock, sock2], [], [], 1000)
-                if sock in r:
-                    data: bytes = sock.recv(chunk_size)
+                client_sock.getpeername() and server_sock.getpeername()
+
+                r, w, x = select.select([client_sock, server_sock], [], [], 1000)
+
+                if client_sock in r:
+                    data: bytes = client_sock.recv(chunk_size)
                     if len(data) == 0:
                         break
 
-                    p = HTTPRequest(data)
-                    # p.show()
-                    if is_http_packet(data):
-                        host_ip = p.Host.decode()
-                        if host_ip == self.dst_host or True:
-                            # data = data.replace(
-                            #     host_ip.encode(), self.dst_host.encode()
-                            # )
-                            # sock2.sendall(data)
-                            p.Host = self.dst_host.encode()
-                            p.Path = p.Path.replace(
-                                host_ip.encode(), self.dst_host.encode()
-                            )
-                            if p.Referer:
-                                p.Referer = p.Referer.replace(
-                                    host_ip.encode(), self.dst_host.encode()
-                                )
-                            sock2.sendall(bytes(p))
+                    new_data = self.manipulate_http_header(data)
+                    if new_data:
+                        server_sock.sendall(new_data)
 
-                if sock2 in r:
-                    data = sock2.recv(chunk_size)
+                if server_sock in r:
+                    data = server_sock.recv(chunk_size)
                     if len(data) == 0:
                         break
-
-                    # p = HTTPRequest(data)
-
-                    if is_http_packet(data):
-                        # print(p.Host.decode())
-                        # p.Host = self.dst_host
-                        sock.sendall(data)
+                    
+                    if is_http_packet(data) and is_http_response(data):
+                        client_sock.sendall(data)
         except:
             pass
         try:
-            sock2.close()
+            server_sock.close()
         except:
             pass
         try:
-            sock.close()
+            client_sock.close()
         except:
             pass
 
@@ -119,7 +152,7 @@ class TCPBridge(object):
 
 
 if __name__ == "__main__":
-    tcp_bridge = TCPBridge(
+    tcp_bridge = HTTPProxy(
         "0.0.0.0", 8082, "10.0.2.15", 80
     )  # TODO:change destonation ip
     tcp_bridge.run()
