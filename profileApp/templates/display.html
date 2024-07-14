@@ -5,17 +5,17 @@
 		<title>display</title>
 		<link rel="stylesheet" href="../static/style.css">
 	</head>
-	<body bgcolor="#e6ffee">
+	<body bgcolor="#c5dfe6">
 		<div class="one">
 			<div class="two">
 				<h1>Side Bar</h1>
 				<ul>
-					<li><a href="{{url_for('index')}}">Index</a></li>
-					<li><a href="{{url_for('home')}}">home</a></li>
-					<li class="active"><a href="{{url_for('display')}}">Display</a></li>
-					<li><a href="{{url_for('update')}}">Update</a></li>
-					<li><a href="{{url_for('delete_account')}}">Delete Account</a></li>
-					<li><a href="{{url_for('logout')}}">Log out</a></li>
+					<a href="{{url_for('index')}}"><li>Index</li></a>
+					<a href="{{url_for('home')}}"><li>home</li></a>
+                    <a href="{{url_for('display')}}"><li class="active">Display</li></a>
+                    <a href="{{url_for('update')}}"><li>Update</li></a>
+                    <a href="{{url_for('delete_account')}}"><li>Delete Account</li></a>
+                    <a href="{{url_for('logout')}}"><li>Log out</li></a>
 				</ul>
 			</div>
 			<div class="content" align="center">
