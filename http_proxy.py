@@ -1,6 +1,25 @@
+from scapy.all import *
+from scapy.layers.http import HTTP, HTTPRequest, HTTPResponse
+from scapy.packet import NoPayload
 import select
 import socket
 import threading
+
+
+def is_http_packet(data):
+
+    http_methods = [b"GET", b"POST", b"PUT", b"DELETE", b"HEAD", b"OPTIONS", b"PATCH"]
+    http_responses = [b"HTTP/1.0", b"HTTP/1.1", b"HTTP/2.0"]
+
+    for method in http_methods:
+        if data.startswith(method):
+            return True
+
+    for response in http_responses:
+        if response in data:
+            return True
+
+    return False
 
 
 def threaded(fn):
@@ -24,10 +43,10 @@ class TCPBridge(object):
         self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server.settimeout(1)
         self.server.bind((self.host, self.port))
-        
+
         self.stop = False
 
-    @threaded
+    # @threaded
     def tunnel(self, sock: socket.socket, sock2: socket.socket, chunk_size=1024):
         try:
             while not self.stop:
@@ -35,16 +54,40 @@ class TCPBridge(object):
                 sock.getpeername() and sock2.getpeername()
                 r, w, x = select.select([sock, sock2], [], [], 1000)
                 if sock in r:
-                    data = sock.recv(chunk_size)
+                    data: bytes = sock.recv(chunk_size)
                     if len(data) == 0:
                         break
-                    sock2.sendall(data)
+
+                    p = HTTPRequest(data)
+                    # p.show()
+                    if is_http_packet(data):
+                        host_ip = p.Host.decode()
+                        if host_ip == self.dst_host or True:
+                            # data = data.replace(
+                            #     host_ip.encode(), self.dst_host.encode()
+                            # )
+                            # sock2.sendall(data)
+                            p.Host = self.dst_host.encode()
+                            p.Path = p.Path.replace(
+                                host_ip.encode(), self.dst_host.encode()
+                            )
+                            if p.Referer:
+                                p.Referer = p.Referer.replace(
+                                    host_ip.encode(), self.dst_host.encode()
+                                )
+                            sock2.sendall(bytes(p))
 
                 if sock2 in r:
                     data = sock2.recv(chunk_size)
                     if len(data) == 0:
                         break
-                    sock.sendall(data)
+
+                    # p = HTTPRequest(data)
+
+                    if is_http_packet(data):
+                        # print(p.Host.decode())
+                        # p.Host = self.dst_host
+                        sock.sendall(data)
         except:
             pass
         try:
@@ -76,5 +119,7 @@ class TCPBridge(object):
 
 
 if __name__ == "__main__":
-    tcp_bridge = TCPBridge("0.0.0.0", 8082, "192.168.1.1", 80) #TODO:change destonation ip 
+    tcp_bridge = TCPBridge(
+        "0.0.0.0", 8082, "10.0.2.15", 80
+    )  # TODO:change destonation ip
     tcp_bridge.run()
